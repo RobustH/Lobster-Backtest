@@ -1,49 +1,49 @@
 # Lobster-Backtest
 
-Lobster-Backtest is a web-based backtesting control panel built around Freqtrade. The goal is to provide a clean browser UI for launching backtests, monitoring logs, and reviewing results without operating the engine directly from the command line.
+Lobster-Backtest 是一个围绕 Freqtrade 构建的 Web 回测控制台项目。目标是通过浏览器界面完成回测任务创建、日志查看和结果分析，而不是直接在命令行中操作回测引擎。
 
-## Planned Architecture
+## 规划中的项目结构
 
-- `backend/`: FastAPI service for APIs, job orchestration, result parsing, and log streaming
-- `frontend/`: React + Vite web UI for task creation, monitoring, and analytics
-- `workspace/freqtrade/`: Freqtrade configs, strategies, data, results, and logs
-- `docs/`: technical design and implementation notes
+- `backend/`：基于 FastAPI 的后端服务，负责接口、任务编排、结果解析和日志推送
+- `frontend/`：基于 React + Vite 的 Web 前端，负责任务创建、状态查看和结果展示
+- `workspace/freqtrade/`：存放 Freqtrade 配置、策略、数据、结果和日志
+- `docs/`：技术设计与实施文档
 
-## Recommended Stack
+## 推荐技术栈
 
-- Backend: Python 3.11+, FastAPI, Pydantic, SQLAlchemy, SQLite
-- Engine: Freqtrade CLI
-- Frontend: React, Vite, TypeScript
-- Realtime: WebSocket
-- Storage: SQLite for metadata, file system for artifacts
+- 后端：Python 3.11+、FastAPI、Pydantic、SQLAlchemy、SQLite
+- 回测引擎：Freqtrade CLI
+- 前端：React、Vite、TypeScript
+- 实时通信：WebSocket
+- 存储：SQLite 存元数据，文件系统存结果产物
 
-## MVP Scope
+## MVP 范围
 
-The first usable version should include:
-- backtest job creation from a browser form
-- backtest job list and status tracking
-- real-time log streaming
-- parsed result summaries and charts
-- local-first deployment
+第一版可用版本建议先包含以下能力：
+- 通过浏览器表单创建回测任务
+- 查看回测任务列表与状态
+- 实时查看日志输出
+- 展示解析后的回测摘要和图表
+- 支持本地优先部署
 
-## Documents
+## 相关文档
 
-- Technical plan: `docs/technical-plan.md`
+- 技术方案：`docs/technical-plan.md`
 
-## Roadmap
+## 路线图
 
-### Phase 1
-- initialize backend and frontend projects
-- create backtest job APIs
-- run Freqtrade backtests through backend-managed subprocesses
-- show logs and summary results in the web UI
+### 第一阶段
+- 初始化前后端项目骨架
+- 建立回测任务接口
+- 通过后端托管的子进程运行 Freqtrade 回测
+- 在 Web 页面展示日志和结果摘要
 
-### Phase 2
-- add config presets and strategy management
-- add historical result comparison
-- support job cancellation and exports
+### 第二阶段
+- 增加配置预设和策略管理
+- 增加历史结果对比
+- 支持任务取消与结果导出
 
-### Phase 3
-- add hyperopt workflows
-- support batch execution and richer analytics
-- prepare for optional remote execution nodes
+### 第三阶段
+- 增加 Hyperopt 工作流
+- 支持批量执行和更丰富的分析能力
+- 为可选的远程执行节点做准备

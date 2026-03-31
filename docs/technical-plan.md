@@ -1,82 +1,82 @@
-# Lobster-Backtest Technical Plan
+# Lobster-Backtest 技术方案
 
-## 1. Goals
+## 1. 项目目标
 
-Lobster-Backtest will provide a web-based control panel for running and viewing Freqtrade backtests. The platform should let users manage strategies, launch backtests, inspect logs, and review historical results without working directly in the command line.
+Lobster-Backtest 将提供一个基于 Web 的 Freqtrade 回测控制台。平台应当支持用户管理策略、发起回测、查看日志，并回顾历史结果，而不需要直接在命令行中操作。
 
-Primary goals:
-- Use Freqtrade as the execution engine for backtesting and later hyperopt.
-- Provide a browser-based UI instead of a desktop shell.
-- Keep engine execution isolated behind an internal backend service.
-- Support local-first deployment and leave room for later server deployment.
+核心目标：
+- 使用 Freqtrade 作为回测执行引擎，后续可扩展到 Hyperopt。
+- 提供浏览器界面，而不是桌面壳程序。
+- 将引擎执行能力隔离在内部后端服务之后。
+- 优先支持本地部署，同时为后续服务化部署预留空间。
 
-Non-goals for the first version:
-- Multi-tenant account system.
-- Live trading.
-- Distributed task scheduling.
-- Full strategy editor in browser.
+第一版非目标：
+- 多租户账户系统。
+- 实盘交易。
+- 分布式任务调度。
+- 浏览器内完整策略编辑器。
 
-## 2. Recommended Stack
+## 2. 推荐技术栈
 
-### Backend
+### 后端
 - Python 3.11+
-- FastAPI for REST APIs and WebSocket endpoints
-- Pydantic for request and response models
-- SQLAlchemy + SQLite for metadata storage
-- Background task runner:
-  - Phase 1: simple subprocess job manager inside backend service
-  - Phase 2: Celery/RQ if task volume grows
+- FastAPI：提供 REST API 和 WebSocket 接口
+- Pydantic：定义请求和响应模型
+- SQLAlchemy + SQLite：存储应用元数据
+- 后台任务执行：
+  - 第一阶段：在后端服务内使用轻量子进程任务管理器
+  - 第二阶段：任务规模扩大后再引入 Celery 或 RQ
 
-### Execution Engine
-- Freqtrade CLI as the backtesting engine
-- Standardized workspace directory for:
-  - config files
-  - strategy files
-  - market data
-  - backtest outputs
-  - logs
+### 执行引擎
+- 使用 Freqtrade CLI 作为回测执行引擎
+- 采用统一的工作目录结构管理：
+  - 配置文件
+  - 策略文件
+  - 市场数据
+  - 回测输出
+  - 日志文件
 
-### Frontend
+### 前端
 - React
 - Vite
 - TypeScript
-- A charting library such as ECharts or Recharts
-- A table/grid component for orders, trades, and result comparison
+- 图表库可选 ECharts 或 Recharts
+- 表格组件用于展示订单、交易和结果对比
 
-### Storage
-- SQLite for application metadata:
-  - jobs
-  - runs
-  - strategy registry
-  - saved parameter presets
-  - result indexes
-- File system for heavy artifacts:
-  - Freqtrade result JSON files
-  - exported CSVs
-  - raw logs
-  - generated charts or reports if needed
+### 存储
+- SQLite 用于存放应用元数据：
+  - 任务记录
+  - 运行记录
+  - 策略注册信息
+  - 参数预设
+  - 结果索引
+- 文件系统用于存放大体积产物：
+  - Freqtrade 结果 JSON
+  - 导出 CSV
+  - 原始日志
+  - 生成的图表或报告
 
-## 3. Why Web Instead of Tauri
+## 3. 为什么先用 Web，而不是 Tauri
 
-Web is the better first step because:
-- It separates UI from execution more cleanly.
-- It is easier to deploy locally and later move to a server.
-- Real-time logs and task history fit naturally into a browser dashboard.
-- It avoids packaging complexity while the product shape is still changing.
-- Future remote access and multi-user support are easier to add.
+现阶段优先使用 Web，原因如下：
+- UI 与执行层职责分离更清晰。
+- 本地运行简单，后续迁移到服务器也更容易。
+- 实时日志、任务历史和结果仪表盘天然适合浏览器。
+- 在产品形态未稳定前，可以避免桌面打包与分发的额外复杂度。
+- 未来若要支持远程访问或多用户使用，Web 方案扩展更自然。
 
-Tauri can still be reconsidered later if a desktop wrapper becomes necessary.
+如果后期确实需要桌面封装，可以再评估是否增加 Tauri 包装层。
 
-## 4. High-Level Architecture
+## 4. 高层架构
 
 ```text
-Browser UI
+浏览器前端
   |
   | REST / WebSocket
   v
-FastAPI Service
+FastAPI 后端服务
   |
-  | subprocess / job orchestration
+  | 子进程 / 任务编排
   v
 Freqtrade CLI
   |
@@ -87,64 +87,64 @@ Freqtrade CLI
   +-- logs/
 ```
 
-Responsibilities:
-- Frontend: configuration forms, task submission, status view, result visualization.
-- Backend: validation, job lifecycle, command execution, result parsing, log streaming.
-- Freqtrade: market data handling, strategy loading, backtesting, optimization.
+各层职责：
+- 前端：配置表单、任务提交、状态查看、结果可视化。
+- 后端：参数校验、任务生命周期管理、命令执行、结果解析、日志推送。
+- Freqtrade：市场数据处理、策略加载、回测执行、优化计算。
 
-## 5. Core Modules
+## 5. 核心模块划分
 
-### 5.1 Frontend Modules
-- Dashboard
-  - recent jobs
-  - quick status cards
-  - latest performance summaries
-- Strategy Management
-  - available strategy list
-  - metadata display
-  - basic enable/disable tagging
-- Backtest Form
-  - strategy selection
-  - pair list
-  - timeframe
-  - timerange
-  - stake and fee parameters
-  - config preset selection
-- Job Monitor
-  - queued/running/completed/failed states
-  - real-time logs
-  - cancel action
-- Result Center
-  - backtest summaries
-  - equity curve
-  - drawdown chart
-  - trade list
-  - strategy comparison
+### 5.1 前端模块
+- 仪表盘
+  - 最近任务
+  - 快速状态卡片
+  - 最新回测表现摘要
+- 策略管理
+  - 策略列表
+  - 策略元信息展示
+  - 基础启用/标记能力
+- 回测创建表单
+  - 策略选择
+  - 交易对选择
+  - 时间周期
+  - 时间范围
+  - 资金和手续费参数
+  - 配置预设选择
+- 任务监控
+  - 排队 / 运行中 / 已完成 / 失败状态
+  - 实时日志
+  - 取消任务
+- 结果中心
+  - 回测摘要
+  - 资金曲线
+  - 回撤曲线
+  - 交易列表
+  - 策略对比
 
-### 5.2 Backend Modules
-- API layer
-  - REST endpoints
-  - WebSocket log/status streaming
-- Job service
-  - create jobs
-  - launch subprocesses
-  - track pid and state
-  - stop jobs safely
-- Freqtrade adapter
-  - build CLI commands
-  - prepare runtime config
-  - normalize outputs
-- Result parser
-  - parse Freqtrade output JSON
-  - derive metrics for UI
-- Storage layer
-  - persist jobs and result index data
-- Workspace manager
-  - resolve paths
-  - validate strategies/config files
-  - keep outputs organized
+### 5.2 后端模块
+- API 层
+  - REST 接口
+  - WebSocket 日志与状态推送
+- 任务服务
+  - 创建任务
+  - 启动子进程
+  - 跟踪进程 ID 和状态
+  - 安全停止任务
+- Freqtrade 适配层
+  - 生成 CLI 命令
+  - 准备运行时配置
+  - 统一输出格式
+- 结果解析层
+  - 解析 Freqtrade 输出 JSON
+  - 为前端生成摘要指标
+- 存储层
+  - 保存任务和结果索引数据
+- 工作区管理器
+  - 解析路径
+  - 校验策略和配置文件
+  - 管理输出目录结构
 
-## 6. Suggested Directory Layout
+## 6. 建议目录结构
 
 ```text
 Lobster-Backtest/
@@ -180,9 +180,9 @@ Lobster-Backtest/
   README.md
 ```
 
-## 7. Backend API Proposal
+## 7. 后端 API 设计建议
 
-### Basic endpoints
+### 基础接口
 - `GET /api/health`
 - `GET /api/strategies`
 - `GET /api/strategies/{name}`
@@ -194,11 +194,11 @@ Lobster-Backtest/
 - `GET /api/presets`
 - `POST /api/presets`
 
-### WebSocket endpoints
+### WebSocket 接口
 - `GET /ws/jobs/{job_id}/logs`
 - `GET /ws/jobs/{job_id}/status`
 
-### Example backtest creation payload
+### 创建回测任务示例请求
 
 ```json
 {
@@ -212,28 +212,28 @@ Lobster-Backtest/
 }
 ```
 
-## 8. Backtest Execution Flow
+## 8. 回测执行流程
 
-1. User fills out the backtest form in the browser.
-2. Frontend sends a request to `POST /api/backtests`.
-3. Backend validates payload and creates a job record.
-4. Backend generates or selects the runtime config.
-5. Backend launches a Freqtrade subprocess.
-6. Stdout and stderr are captured and streamed to WebSocket subscribers.
-7. When the process exits, backend parses the result files.
-8. Backend stores summary metrics and file references.
-9. Frontend fetches result data and renders tables/charts.
+1. 用户在浏览器中填写回测表单。
+2. 前端向 `POST /api/backtests` 发送请求。
+3. 后端校验参数并创建任务记录。
+4. 后端生成或选取运行时配置。
+5. 后端启动 Freqtrade 子进程。
+6. 实时捕获 stdout 和 stderr，并通过 WebSocket 推送给订阅者。
+7. 进程结束后，后端解析结果文件。
+8. 后端保存摘要指标和结果文件引用。
+9. 前端拉取结果数据并渲染图表与表格。
 
-## 9. Job Model Proposal
+## 9. 任务模型建议
 
-### Job lifecycle states
-- `pending`
-- `running`
-- `completed`
-- `failed`
-- `cancelled`
+### 任务状态
+- `pending`：待执行
+- `running`：执行中
+- `completed`：已完成
+- `failed`：执行失败
+- `cancelled`：已取消
 
-### Suggested job fields
+### 建议字段
 - `id`
 - `job_type`
 - `status`
@@ -250,11 +250,11 @@ Lobster-Backtest/
 - `error_message`
 - `created_at`
 
-## 10. Freqtrade Integration Notes
+## 10. Freqtrade 集成说明
 
-The backend should not expose raw command execution to the frontend. Instead, create a small adapter layer that translates validated request data into Freqtrade commands.
+后端不应向前端暴露原始命令执行能力，而应通过一个适配层把已校验的请求参数转换为 Freqtrade 命令。
 
-Example command pattern:
+命令示例：
 
 ```bash
 freqtrade backtesting \
@@ -264,109 +264,109 @@ freqtrade backtesting \
   --timerange 20240101-20240301
 ```
 
-Integration rules:
-- Generate runtime config files per job when overrides are needed.
-- Store one log file per run.
-- Store one result artifact bundle per run.
-- Parse outputs after process completion rather than making frontend parse raw files.
-- Restrict strategies to approved directories.
+集成规则：
+- 当任务存在覆盖参数时，为每次任务生成独立运行时配置。
+- 每次运行保存一份独立日志文件。
+- 每次运行保存一份独立结果产物集合。
+- 在进程结束后统一解析结果，而不是让前端直接读取原始文件。
+- 仅允许从受控策略目录加载策略。
 
-## 11. Frontend Pages
+## 11. 前端页面规划
 
-### Dashboard
-- total jobs
-- running jobs
-- latest completed jobs
-- aggregate performance snapshots
+### 仪表盘
+- 总任务数
+- 运行中任务数
+- 最近完成任务
+- 聚合后的表现快照
 
-### Backtests
-- create new backtest
-- list and filter past jobs
-- inspect one job with logs and result panels
+### 回测页
+- 创建新回测任务
+- 列表查看与筛选历史任务
+- 查看单个任务的日志和结果面板
 
-### Strategies
-- list strategies discovered in workspace
-- show strategy metadata if available
+### 策略页
+- 展示工作区中发现的策略
+- 如果可用，展示策略元信息
 
-### Settings
-- workspace path
-- default config preset
-- exchange/data source settings
-- result retention settings
+### 设置页
+- 工作区路径
+- 默认配置预设
+- 交易所/数据源设置
+- 结果保留策略
 
-## 12. Result Presentation
+## 12. 结果展示建议
 
-The UI should focus on turning Freqtrade output into readable trading insight.
+UI 应聚焦于把 Freqtrade 原始输出转化为可读的交易分析结果。
 
-Recommended result sections:
-- Summary cards
-  - total return
-  - CAGR if available
-  - max drawdown
-  - Sharpe ratio
-  - win rate
-  - total trades
-- Equity curve chart
-- Drawdown chart
-- Per-pair breakdown table
-- Trade history table
-- Parameter snapshot panel
-- Raw artifact download links
+建议展示内容：
+- 摘要卡片
+  - 总收益率
+  - 年化收益率（如可得）
+  - 最大回撤
+  - Sharpe 比率
+  - 胜率
+  - 总交易数
+- 资金曲线图
+- 回撤曲线图
+- 分交易对表现表
+- 交易历史表
+- 参数快照面板
+- 原始产物下载链接
 
-## 13. Security and Safety
+## 13. 安全与约束
 
-- Do not allow arbitrary shell commands from the frontend.
-- Constrain all file access to the workspace directory.
-- Validate strategy names and config preset names.
-- Limit concurrent backtest jobs in phase 1.
-- Sanitize log streaming and error messages.
-- Use internal job IDs rather than exposing direct file system paths.
+- 不允许前端发起任意 Shell 命令。
+- 所有文件访问都限制在工作区目录内。
+- 对策略名和配置预设名做严格校验。
+- 第一阶段限制并发回测数量。
+- 对日志输出和错误信息做适当清洗。
+- 对外仅暴露内部任务 ID，而不是文件系统真实路径。
 
-## 14. Phase Plan
+## 14. 阶段规划
 
-### Phase 1: MVP
-- backend service skeleton
-- frontend dashboard skeleton
-- create/list backtest jobs
-- run one backtest at a time
-- stream logs
-- display parsed result summary
+### 第一阶段：MVP
+- 后端服务骨架
+- 前端控制台骨架
+- 创建与查询回测任务
+- 一次只运行一个回测任务
+- 实时日志推送
+- 展示解析后的结果摘要
 
-### Phase 2: Practical Use
-- multiple saved presets
-- strategy discovery and metadata view
-- historical result comparison
-- result export
-- basic job cancellation
+### 第二阶段：实用化
+- 多个参数预设
+- 策略发现与元信息展示
+- 历史结果对比
+- 结果导出
+- 基础任务取消能力
 
-### Phase 3: Advanced Analysis
-- hyperopt support
-- batch jobs
-- strategy comparison dashboard
-- richer analytics and charts
-- optional remote worker execution
+### 第三阶段：高级分析
+- Hyperopt 支持
+- 批量任务
+- 策略对比仪表盘
+- 更丰富的分析图表
+- 可选远程执行节点
 
-## 15. Recommended MVP Scope
+## 15. 推荐的 MVP 边界
 
-To keep delivery tight, the first usable milestone should include only:
-- local deployment
-- one backend service
-- one web frontend
-- SQLite metadata database
-- one backtest form
-- one job list page
-- one job detail page with logs and result summary
+为了尽快交付一个可验证方向的版本，第一阶段建议只包含：
+- 本地部署
+- 单个后端服务
+- 单个 Web 前端
+- SQLite 元数据库
+- 一个回测创建表单
+- 一个任务列表页
+- 一个包含日志和结果摘要的任务详情页
 
-This is enough to validate the product direction before investing in optimization or desktop packaging.
+这已经足够验证产品方向，再决定是否继续投入优化、批处理和桌面封装。
 
-## 16. Implementation Recommendation
+## 16. 实施建议
 
-Start with this concrete combination:
-- Backend: FastAPI
-- Engine: Freqtrade
-- Frontend: React + Vite + TypeScript
-- DB: SQLite
-- Realtime: WebSocket
-- Task execution: in-process subprocess manager for MVP
+建议先按以下组合落地：
+- 后端：FastAPI
+- 引擎：Freqtrade
+- 前端：React + Vite + TypeScript
+- 数据库：SQLite
+- 实时通信：WebSocket
+- 任务执行：MVP 阶段先使用进程内子进程管理器
 
-This gives the shortest path to a working product while keeping the architecture clean enough for later evolution.
+这条路线能以较低复杂度尽快做出可用版本，同时保留后续扩展空间。

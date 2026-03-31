@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.mypy_cache/
+
+# Node
+node_modules/
+dist/
+coverage/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Runtime data
+*.db
+*.sqlite3
+*.log
+workspace/freqtrade/data/
+workspace/freqtrade/results/
+workspace/freqtrade/logs/
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/

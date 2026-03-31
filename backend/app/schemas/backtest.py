@@ -21,3 +21,28 @@ class BacktestJobSummary(BaseModel):
     stake_amount: float
     fee: float
     config_preset: str
+
+
+class KlineCandle(BaseModel):
+    time: str
+    open: float
+    high: float
+    low: float
+    close: float
+    volume: float
+
+
+class HistoricalDataRequest(BaseModel):
+    exchange: str = Field(default="binance", min_length=1, description="交易所")
+    pairs: list[str] = Field(min_length=1, description="交易对列表")
+    timeframes: list[str] = Field(min_length=1, description="周期列表")
+    timerange: str = Field(min_length=1, description="历史数据时间范围")
+
+
+class HistoricalDataResponse(BaseModel):
+    status: str
+    command: list[str]
+    stdout: str
+    stderr: str
+    data_path: str
+    used_fallback: bool

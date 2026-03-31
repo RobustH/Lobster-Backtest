@@ -51,3 +51,31 @@ def test_list_backtest_jobs() -> None:
     data = response.json()
     assert len(data) == 1
     assert data[0]["strategy"] == "MomentumStrategy"
+
+
+def test_list_market_klines() -> None:
+    response = client.get("/api/market/klines?symbol=BTC/USDT&timeframe=1h&limit=24")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 24
+    assert set(data[0]) == {"time", "open", "high", "low", "close", "volume"}
+    assert data[0]["high"] >= data[0]["low"]
+
+
+def test_download_market_history_without_freqtrade() -> None:
+    response = client.post(
+        "/api/market/history/download",
+        json={
+            "exchange": "binance",
+            "pairs": ["BTC/USDT", "ETH/USDT"],
+            "timeframes": ["1h", "4h"],
+            "timerange": "20240101-20240301",
+        },
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "stubbed"
+    assert body["used_fallback"] is True
+    assert body["command"][:3] == ["freqtrade", "download-data", "--exchange"]

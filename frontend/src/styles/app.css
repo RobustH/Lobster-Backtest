@@ -92,6 +92,201 @@
   border: 1px solid rgba(255, 255, 255, 0.16);
 }
 
+.chart-panel {
+  margin-top: 20px;
+}
+
+.chart-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(104, 173, 255, 0.14);
+  border: 1px solid rgba(104, 173, 255, 0.32);
+  color: #c6dcff;
+  font-size: 13px;
+}
+
+.chart-state {
+  margin: 0;
+  color: rgba(247, 239, 225, 0.8);
+}
+
+.chart-state.error {
+  color: #ff9b8d;
+}
+
+.tv-chart {
+  width: 100%;
+  min-height: 380px;
+  padding: 8px 0 0;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top left, rgba(104, 173, 255, 0.09), transparent 24%),
+    linear-gradient(180deg, rgba(13, 26, 40, 0.98), rgba(9, 18, 29, 0.94));
+}
+
+.history-layout {
+  align-items: start;
+}
+
+.history-panel,
+.history-result-panel {
+  min-height: 100%;
+}
+
+.history-form {
+  display: grid;
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.history-form label,
+.date-range-grid label {
+  display: grid;
+  gap: 8px;
+}
+
+.history-form span,
+.field-label {
+  font-size: 13px;
+  color: rgba(247, 239, 225, 0.68);
+}
+
+.history-form input,
+.history-form select {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #f7efe1;
+  font: inherit;
+}
+
+.date-range-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.pill-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.pair-grid {
+  gap: 12px;
+}
+
+.pill-button {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(247, 239, 225, 0.84);
+  cursor: pointer;
+  font: inherit;
+  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+}
+
+.pill-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(246, 193, 119, 0.42);
+}
+
+.pill-button.active {
+  background: linear-gradient(135deg, rgba(103, 242, 179, 0.22), rgba(104, 173, 255, 0.22));
+  border-color: rgba(103, 242, 179, 0.5);
+  color: #f4fff8;
+}
+
+.selection-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.selection-summary span {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(247, 239, 225, 0.8);
+}
+
+.history-form > button {
+  border: 0;
+  border-radius: 999px;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #67f2b3, #9fe870);
+  color: #13211e;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.history-form > button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.history-result {
+  display: grid;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.history-status-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.history-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.history-status.success {
+  background: rgba(103, 242, 179, 0.16);
+  color: #8ff2c0;
+}
+
+.history-status.fallback {
+  background: rgba(246, 193, 119, 0.16);
+  color: #f6c177;
+}
+
+.history-status-row code,
+.history-block pre {
+  overflow: auto;
+  margin: 0;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.22);
+  padding: 12px 14px;
+  color: rgba(247, 239, 225, 0.88);
+}
+
+.history-block {
+  display: grid;
+  gap: 8px;
+}
+
+.history-block strong {
+  font-size: 13px;
+  color: rgba(247, 239, 225, 0.68);
+}
+
 .grid-panel {
   display: grid;
   grid-template-columns: 1.4fr 1fr;
@@ -166,27 +361,6 @@
 .roadmap-item p {
   margin: 0;
   color: rgba(247, 239, 225, 0.84);
-}
-
-@media (max-width: 840px) {
-  .page-shell {
-    width: min(100vw - 20px, 1120px);
-    padding: 24px 0 40px;
-  }
-
-  .hero-card,
-  .panel {
-    border-radius: 22px;
-  }
-
-  .hero-card {
-    padding: 24px;
-  }
-
-  .grid-panel,
-  .roadmap-list {
-    grid-template-columns: 1fr;
-  }
 }
 
 .jobs-panel {
@@ -269,13 +443,35 @@
 }
 
 @media (max-width: 840px) {
-  .jobs-header {
+  .page-shell {
+    width: min(100vw - 20px, 1120px);
+    padding: 24px 0 40px;
+  }
+
+  .hero-card,
+  .panel {
+    border-radius: 22px;
+  }
+
+  .hero-card {
+    padding: 24px;
+  }
+
+  .grid-panel,
+  .roadmap-list,
+  .job-grid,
+  .job-card dl,
+  .date-range-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .jobs-header,
+  .history-status-row {
     align-items: stretch;
     flex-direction: column;
   }
 
-  .job-grid,
-  .job-card dl {
-    grid-template-columns: 1fr;
+  .tv-chart {
+    min-height: 300px;
   }
 }
